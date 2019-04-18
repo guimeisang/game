@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <style>
+        canvas{
+            border: 1px solid #000;
+        }
+    </style>
+</head>
+<body>
+    <canvas width="500" height="400" id="canvas"></canvas>
+    <script>
+        window.log = console.log.bind(console);
+
+        // 获取path
+        function imageFromPath(path){
+            var img = new Image()
+            img.src = path
+            return img
+        }
+
+        var Toolbar = function(){
+            var img = imageFromPath('./toolbar.png')
+
+            var o = {
+                img: img,
+                x: 100,
+                y: 300,
+                speeds: 10
+            }
+
+            o.moveLeft = function(){
+                o.toolbarX -= o.speeds
+            }   
+
+            o.moveRight = function(){
+                o.toolbarX += o.speeds
+            }  
+
+            return o
+        }
+
+        var Game = function(){
+            var g = {
+                keydowns:{},
+                actions: {}
+            }
+
+
+            var canvas = document.getElementById('canvas');
+            var context = canvas.getContext('2d');
+
+            g.canvas = canvas
+            g.context = context
+
+            g.drawImage = function(imgObj){
+                g.context.drawImage(imgObj.img, imgObj.x, imgObj.y)
+            }
+
+            window.addEventListener('keydown', function(e){
+                g.keydowns[e.key] = true
+            })
+
+            window.addEventListener('keyup', function(e){
+                g.keydowns[e.key] = false
+            })
+
+            g.registerAction = function(key, callback){
+                g.actions[key] = callback
+            }
+
+            setInterval(function(){
+                // events
+                var actions = Object.keys(g.actions)
+                for(var i = 0; i < actions.length; i++){
+                    var key = actions[i]
+                    if(g.keydowns[key]){
+                        g.actions[key]()
+                    }
+                }
+
+                // draw
+                g.draw()
+            }, 1000/30)
+
+            return g;
+        }   
+
+        var __main = function(){
+            var game = Game()
+            
+            var toolbar = Toolbar();
+
+            game.registerAction('a', function(){
+                toolbar.moveLeft();
+            })
+            
+            game.registerAction('b', function(){
+                toolbar.moveRight();
+            })
+            console.log('111')
+            game.draw = function(){
+                
+                game.drawImage(toolbar);
+            }
+        }
+
+        __main();
+    </script>
+</body>
+</html>
